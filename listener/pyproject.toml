@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "listener"
+version = "0.1.0"
+description = ""
+authors = ["heiskane <henipe@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^1.10.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
