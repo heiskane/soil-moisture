@@ -62,6 +62,6 @@ void loop() {
     reconnect();
   }
 
-  mqtt_client.publish("soil_moisture", tempString);
+  mqtt_client.publish("soil-moisture", tempString);
   delay(1000);
 }
