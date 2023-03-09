@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 WiFiClient wifiClient;
 PubSubClient mqtt_client(wifiClient);
@@ -11,6 +12,7 @@ const char* mqtt_server = "192.168.1.94";
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 int sensor_value = 0;
 
+DynamicJsonDocument msg(512);
 void reconnect() {
   // Loop until we're reconnected
   while (!mqtt_client.connected()) {
@@ -55,12 +57,15 @@ void loop() {
   Serial.print("sensor_value: ");
   Serial.println(sensor_value);
 
-  char tempString[8];
-  dtostrf(sensor_value, 1, 0, tempString);
 
   if (!mqtt_client.connected()) {
     reconnect();
   }
+
+  char tempString[512];
+  msg["sensor"] = "test-sensor";
+  msg["value"] = sensor_value;
+  serializeJson(msg, tempString);
 
   mqtt_client.publish("soil-moisture", tempString);
   delay(1000);

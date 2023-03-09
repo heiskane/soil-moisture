@@ -7,18 +7,7 @@ from json import JSONDecodeError
 import paho.mqtt.client as mqtt
 from pydantic import BaseModel, BaseSettings, ValidationError
 
-
-class Config(BaseSettings):
-    LOG_LEVEL: str = "INFO"
-
-    MQTT_BROKER_HOSTNAME: str = "127.0.0.1"
-    MQTT_BROKER_PORT: int = 1883
-
-    MQTT_USERNAME: str = "user"
-    MQTT_PASSWORD: str = "pass"
-
-
-settings = Config()
+from listener.config import settings
 
 logging.basicConfig(format="%(levelname)s: %(asctime)s %(message)s")
 logger = logging.getLogger()
@@ -48,6 +37,9 @@ def on_message(client, userdata, msg) -> None:
         return
     except ValidationError:
         logger.exception("data validation failed")
+        return
+    except Exception:
+        logger.exception("Unexpected exception")
         return
 
     logger.info(data)
