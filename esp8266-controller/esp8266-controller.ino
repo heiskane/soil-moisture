@@ -55,8 +55,8 @@ void setup() {
   Serial.print("IP Address is: ");
   Serial.println(WiFi.localIP());
 
-  //mqtt_client.setServer(mqtt_server, 1883);
-  //reconnect();
+  mqtt_client.setServer(mqtt_server, 1883);
+  reconnect();
 
   pinMode(mux_enable, OUTPUT);
   pinMode(S0, OUTPUT);
@@ -85,21 +85,23 @@ void loop() {
     Serial.print("_value: ");
     Serial.println(sensor_value);
 
-    delay(300);
-  }
+    if (!mqtt_client.connected()) {
+      reconnect();
+    }
+
+    char sensor_name[64];
+    char tempString[512];
+
+    sprintf(sensor_name, "home-sensor-%d", i);
+
+    msg["sensor"] = sensor_name;
+    msg["value"] = sensor_value;
+    serializeJson(msg, tempString);
+
+    mqtt_client.publish("soil-moisture", tempString);
+      delay(100);
+    }
 
 
-
-
-  //if (!mqtt_client.connected()) {
-  //  reconnect();
-  //}
-
-  //char tempString[512];
-  //msg["sensor"] = "test-sensor";
-  //msg["value"] = sensor_value;
-  //serializeJson(msg, tempString);
-
-  //mqtt_client.publish("soil-moisture", tempString);
   delay(1000);
 }
