@@ -15,8 +15,9 @@ const int S1 = 5;            // D1
 const int S2 = 4;            // D2
 const int mux_enable = 0;    // D4
 
+const int mux_channels = 4;
+
 int sensor_value = 0;
-int mux_channels = 4;
 
 DynamicJsonDocument msg(512);
 
@@ -39,15 +40,25 @@ void reconnect() {
 }
 
 int read_mux(int channel) {
-  Serial.print("reading from channel: ");
-  Serial.println(channel);
-
   digitalWrite(S0, bitRead(channel, 0));
   digitalWrite(S1, bitRead(channel, 1));
   digitalWrite(S2, bitRead(channel, 2));
 
-  delay(1000);
+  delay(100);
   return analogRead(analogInPin);  
+}
+
+void publish_data(char* sensor_name, int data) {
+  if (!mqtt_client.connected()) {
+    reconnect();
+  }
+  char tempString[512];
+
+  msg["sensor"] = sensor_name;
+  msg["value"] = data;
+  serializeJson(msg, tempString);
+
+  mqtt_client.publish("soil-moisture", tempString);
 }
 
 void setup() {
@@ -91,19 +102,13 @@ void loop() {
     Serial.print("_value: ");
     Serial.println(sensor_value);
 
-    if (!mqtt_client.connected()) {
-      reconnect();
-    }
-
     char sensor_name[64];
-    char tempString[512];
-
     sprintf(sensor_name, "home-sensor-%d", i);
 
-    msg["sensor"] = sensor_name;
-    msg["value"] = sensor_value;
-    serializeJson(msg, tempString);
+    char to_print[40];
+    sprintf(to_print, "%s: %d", sensor_name, sensor_value);
+    Serial.print(to_print);
 
-    mqtt_client.publish("soil-moisture", tempString);
+    publish_data(sensor_name, sensor_value);
   }
 }
