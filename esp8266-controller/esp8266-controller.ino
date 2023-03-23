@@ -38,6 +38,18 @@ void reconnect() {
   }
 }
 
+int read_mux(int channel) {
+  Serial.print("reading from channel: ");
+  Serial.println(channel);
+
+  digitalWrite(S0, bitRead(channel, 0));
+  digitalWrite(S1, bitRead(channel, 1));
+  digitalWrite(S2, bitRead(channel, 2));
+
+  delay(1000);
+  return analogRead(analogInPin);  
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -65,23 +77,17 @@ void setup() {
   pinMode(analogInPin, INPUT);
 
   digitalWrite(mux_enable, LOW);
-  digitalWrite(S0, LOW);
-  digitalWrite(S1, LOW);
-  digitalWrite(S2, LOW);
 }
 
 void loop() {
 
+  delay(1000);
   Serial.println();
   
   for (int i = 0; i < mux_channels; i++) {    
-    digitalWrite(S0, bitRead(i, 0));
-    digitalWrite(S1, bitRead(i, 1));
-    digitalWrite(S2, bitRead(i, 2));
-
-    sensor_value = analogRead(analogInPin);
+    sensor_value = read_mux(i);
     Serial.print("sensor");
-    Serial.print(i + 1);
+    Serial.print(i);
     Serial.print("_value: ");
     Serial.println(sensor_value);
 
@@ -99,9 +105,5 @@ void loop() {
     serializeJson(msg, tempString);
 
     mqtt_client.publish("soil-moisture", tempString);
-      delay(100);
-    }
-
-
-  delay(1000);
+  }
 }
