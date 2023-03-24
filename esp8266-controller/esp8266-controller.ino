@@ -91,19 +91,15 @@ void setup() {
 }
 
 void loop() {
-
   delay(1000);
   Serial.println();
   
   for (int i = 0; i < mux_channels; i++) {    
     sensor_value = read_mux(i);
-    Serial.print("sensor");
-    Serial.print(i);
-    Serial.print("_value: ");
-    Serial.println(sensor_value);
 
     char sensor_name[64];
     sprintf(sensor_name, "home-sensor-%d", i);
+    Serial.println();
 
     char to_print[40];
     sprintf(to_print, "%s: %d", sensor_name, sensor_value);
