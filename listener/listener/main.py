@@ -1,25 +1,27 @@
 import json
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from json import JSONDecodeError
 
 import paho.mqtt.client as mqtt
-from pydantic import BaseModel, BaseSettings, ValidationError
+from pydantic import BaseModel, ValidationError
 
 from listener.config import settings
+from listener.database import SessionLocal
+from listener.models import SoilMoisture
 
 logging.basicConfig(format="%(levelname)s: %(asctime)s %(message)s")
 logger = logging.getLogger()
 logger.setLevel(settings.LOG_LEVEL)
 
 
-class SoilMoisture(BaseModel):
+class SoilMoistureCreate(BaseModel):
     sensor: str
     value: int
 
 
-class SoilMoistureDB(SoilMoisture):
+class SoilMoistureDB(SoilMoistureCreate):
     time: datetime
 
 
@@ -31,7 +33,7 @@ def on_connect(client, userdata, flags, rc) -> None:
 def on_message(client, userdata, msg) -> None:
     try:
         json_data = json.loads(msg.payload)
-        data = SoilMoisture(**json_data)
+        data = SoilMoistureCreate(**json_data)
     except JSONDecodeError:
         logger.error("json parsing failed")
         return
@@ -42,11 +44,19 @@ def on_message(client, userdata, msg) -> None:
         logger.exception("Unexpected exception")
         return
 
-    logger.info(data)
+    soil_moisture = SoilMoistureDB(time=datetime.now(timezone.utc), **data.dict())
+
+    logger.info("adding data: %s", soil_moisture)
+    soil_moisture_obj = SoilMoisture(**soil_moisture.dict())
+
+    with SessionLocal() as session:
+        session.add(soil_moisture_obj)
+        session.commit()
+        session.refresh(soil_moisture_obj)
 
 
 def main() -> None:
-    client = mqtt.Client()
+    client = mqtt.Client("soil-moisture-consumer")
     client.on_connect = on_connect
     client.on_message = on_message
     client.username_pw_set(
@@ -64,4 +74,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.error("keyboardinterrupt detected... stopping..")
