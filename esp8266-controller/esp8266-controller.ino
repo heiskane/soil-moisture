@@ -8,6 +8,8 @@ PubSubClient mqtt_client(wifiClient);
 const char* ssid = "Telia-987EE1";
 const char* password = "SECRET_HERE";
 const char* mqtt_server = "192.168.1.94";
+const char* mqtt_user =   "potato";
+const char* mqtt_pass =   "tomato";
 
 const int analogInPin = A0;  // ESP8266 Analog Pin ADC0 = A0
 const int S0 = 16;           // D0
@@ -27,7 +29,7 @@ void reconnect() {
     Serial.print("Attempting MQTT connection...");
 
     // Attempt to connect
-    if (mqtt_client.connect("ESP8266Client")) {
+    if (mqtt_client.connect("ESP8266Client", mqtt_user, mqtt_pass)) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
