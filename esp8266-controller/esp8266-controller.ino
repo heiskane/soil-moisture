@@ -99,6 +99,11 @@ void loop() {
   for (int i = 0; i < mux_channels; i++) {    
     sensor_value = read_mux(i);
 
+    // values under 120 probably mean the sensor is not connected
+    if (sensor_value < 120) {
+      continue;
+    }
+
     char sensor_name[64];
     sprintf(sensor_name, "home-sensor-%d", i);
     Serial.println();
