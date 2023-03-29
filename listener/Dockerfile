@@ -34,6 +34,7 @@ ADD listener ./listener
 # [OPTIONAL] Validate the project is properly configured
 RUN poetry check
 
-RUN poetry install
+RUN poetry config virtualenvs.create false \
+    && poetry install
 
-ENTRYPOINT [ "startup.sh" ]
+ENTRYPOINT [ "/app/listener/startup.sh" ]
