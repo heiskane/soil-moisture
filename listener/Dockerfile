@@ -36,4 +36,4 @@ RUN poetry check
 
 RUN poetry install
 
-ENTRYPOINT [ "poetry", "run", "python", "listener" ]
+ENTRYPOINT [ "startup.sh" ]

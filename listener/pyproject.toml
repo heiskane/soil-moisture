@@ -5,6 +5,9 @@ description = ""
 authors = ["heiskane <henipe@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+init_db = 'listener.init_db:main'
+
 [tool.poetry.dependencies]
 python = "^3.11"
 pydantic = "^1.10.6"
