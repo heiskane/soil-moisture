@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  mqtt-consumer:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      MQTT_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      MQTT_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always
+
+networks:
+  iot-shenanigans:
+    external: true
