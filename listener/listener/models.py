@@ -1,5 +1,6 @@
-from database import Base
 from sqlalchemy import Column, DateTime, Integer, String
+
+from listener.database import Base
 
 
 class SoilMoisture(Base):
