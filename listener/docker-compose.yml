@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_SERVER: ${POSTGRES_SERVER}
     restart: always
+    networks:
+       - iot-shenanigans
 
 networks:
   iot-shenanigans:
